@@ -1,0 +1,28 @@
+services:
+  gev:
+    build: .
+    # HOST/PORT are fixed inside the container; the published port below is
+    # what decides who can reach it.
+    environment:
+      HOST: 0.0.0.0
+      PORT: '4173'
+      # Extra Host-header names to accept (comma-separated). Binding 0.0.0.0
+      # does not trust arbitrary Host headers; see SECURITY.md.
+      GEV_ALLOWED_HOSTS: ${GEV_ALLOWED_HOSTS:-}
+    # Optional keys. Compose skips this when no .env exists; the app is fully
+    # usable keyless.
+    env_file:
+      - path: .env
+        required: false
+    # Loopback only. The server brokers every configured key, so publishing on
+    #  Change deliberately, not by default.
+    ports:
+      - '127.0.0.1:4173'
+    volumes:
+      # Live-edit the checkout from the host.
+      - .:/app
+      # Keep the Linux-built node_modules (sharp is native) out of the bind mount.
+      - node_modules:/app/node_modules
+
+volumes:
+  node_modules:
